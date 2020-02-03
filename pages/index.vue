@@ -3,11 +3,11 @@
     <b-row>
       <b-col md="6" offset-md="3">
         <b-card
-          title="身份验证"
+          title="须要验证您的身份"
           class="mb-2"
         >
           <b-card-text>
-            请输入您在 <a href="https://hitokoto.cn/api/v1/user/getToken" target="_blank">hitokoto.cn</a> 获得的令牌（Token）以验证身份。
+            请输入您在 <a href="https://hitokoto.cn/api/v1/user/getToken" target="_blank">hitokoto.cn</a> 获得的令牌（<code>token</code>）以验证身份。
           </b-card-text>
           <b-form @submit="onSubmit">
             <b-form-group
@@ -42,7 +42,7 @@ export default {
   auth: false,
   head () {
     return {
-      title: '身份验证 | 一言投票系统'
+      title: '身份验证 | 一言投票服务'
     }
   },
   data () {
@@ -53,8 +53,8 @@ export default {
       validation: null,
       feedback: '',
       errMsg: [
-        '令牌存在问题，请检查您的输入！',
-        '无法验证您的身份，请检查您输入的Token！'
+        '令牌长度存在问题，请检查您的输入！',
+        '无法验证您的身份，请检查您输入的令牌！'
       ],
       requestLock: false
     }
@@ -69,7 +69,7 @@ export default {
       this.$notify({
         // type: 'warn',
         group: 'token-validation',
-        title: '检索到一个储存在本地的令牌（Token）',
+        title: '检索到本地存储存在令牌',
         text: '我们将尝试使用此凭据进行身份验证。'
       })
       const _this = this
@@ -83,7 +83,7 @@ export default {
               type: 'success',
               group: 'token-validation',
               title: '身份验证成功',
-              text: '现在，我们将前往控制台。'
+              text: '现在，我们将转跳至控制台。'
             })
             _this.$router.push('/dashboard')
           } else {
@@ -91,7 +91,7 @@ export default {
               type: 'error',
               group: 'token-validation',
               title: '令牌失效',
-              text: '无法验证您的身份，您可能需要更新您的令牌。'
+              text: '无法验证您的身份，您需要更新您的令牌。'
             })
           }
         })

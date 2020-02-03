@@ -3,14 +3,14 @@
     <b-row>
       <b-col md="8" offset-md="2">
         <b-card
-          title="欢迎您使用一言投票系统（beta）"
+          title="欢迎您使用一言投票服务（内测版）"
           img-src="https://piccdn.freejishu.com/images/2016/04/27/15fc1a3bafc5d8b6fad2f0557efb232c.jpg"
           img-alt="Image"
           img-top
           class="mb-3"
         >
           <b-card-text>
-            由于本系统还处于研发阶段，因而部分功能还未实现。您可以通过下方的“获取新投票”按钮获取一个新的句子以开始审核，点击句子下方的相关按钮将提交您的审核意见。
+            由于本系统还处于研发阶段，因此部分功能还未实现。您可以通过下方的“获取新投票”按钮获取一个新的句子以开始审核，点击句子下方的相关按钮提交您的审核意见。
           </b-card-text>
         </b-card>
 
@@ -29,10 +29,10 @@
               </div>
               <div>
                 <ul style="list-style: none;margin:0px;padding:0px;" class="mb-2">
-                  <li>UUID：{{ poll.sentence_uuid }} </li>
+                  <li>标识：{{ poll.sentence_uuid }} </li>
                   <li>句子：{{ poll.pending.hitokoto }}</li>
                   <li>来源：{{ poll.pending.from }}</li>
-                  <li>作者：{{ poll.pending.from_who || '未填写作者' }}</li>
+                  <li>作者：{{ poll.pending.from_who || '未填写' }}</li>
                   <li>分类：{{ formatType(poll.pending.type) }}</li>
                   <li>提交者：{{ poll.pending.creator }}</li>
                   <li><b>当前投票：批准 {{ poll.accept }} 票，驳回 {{ poll.reject }} 票，需要更改 {{ poll.need_edited }} 票</b></li>
@@ -91,7 +91,7 @@
               </ul>
             </b-list-group-item>
             <b-list-group-item>
-              创建时间：{{ formatTime(user.created_at) }}
+              建档时间：{{ formatTime(user.created_at) }}
             </b-list-group-item>
             <b-list-group-item>
               最后操作：{{ formatTime(user.updated_at) }}
@@ -114,7 +114,7 @@
               </div>
               <div>
                 <ul style="list-style: none;margin:0px;padding:0px;" class="mb-2">
-                  <li>UUID：{{ log.sentence_uuid }} </li>
+                  <li>标识：{{ log.sentence_uuid }} </li>
                   <template v-if="getPollSentence(log)">
                     <li>句子：{{ getPollSentence(log).hitokoto }}</li>
                     <li>来源：{{ getPollSentence(log).from }}</li>
@@ -141,7 +141,7 @@ import moment from 'moment'
 export default {
   head () {
     return {
-      title: '控制台 | 一言投票系统'
+      title: '控制台 | 一言投票服务'
     }
   },
   data () {
@@ -192,7 +192,7 @@ export default {
         l: '抖机灵（笑话，脑筋急转弯，段子等）'
       }
 
-      return output[input] || '位置分类'
+      return output[input] || '未知分类'
     },
     getPollSentence (data) {
       if (data.pending) {
@@ -241,7 +241,7 @@ export default {
           type: 'error',
           group: 'request-result',
           title: '无法进行投票操作',
-          text: '对句子：' + sentenceUUID + ' 发起投票时出现错误，请重试。'
+          text: '对句子：' + sentenceUUID + ' 发起投票时出现未知错误，建议联系管理员。'
         })
         this.requestPollLock = false
         return
