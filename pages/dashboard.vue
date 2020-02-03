@@ -3,19 +3,19 @@
     <b-row>
       <b-col md="8" offset-md="2">
         <b-card
-          title="歡迎您使用一言投票服務（内測版）"
+          title="欢迎您使用一言投票系统（beta）"
           img-src="https://piccdn.freejishu.com/images/2016/04/27/15fc1a3bafc5d8b6fad2f0557efb232c.jpg"
           img-alt="Image"
           img-top
           class="mb-3"
         >
           <b-card-text>
-            由於本系統還處於研發階段，功能并未完全繼承。目前，您可以通過下方的“獲取新投票”按鈕發起投票，然後使用相關按鈕投票，投票系統娘會自動處理。
+            由于本系统还处于研发阶段，因而部分功能还未实现。您可以通过下方的“获取新投票”按钮获取一个新的句子以开始审核，点击句子下方的相关按钮将提交您的审核意见。
           </b-card-text>
         </b-card>
 
         <b-card
-          header="正在進行中的投票"
+          header="正在进行中的投票"
           class="mb-3"
           no-body
         >
@@ -25,31 +25,31 @@
                 <h5 class="mb-1">
                   #{{ poll.id }}
                 </h5>
-                <small>發起于：{{ formatTime(poll.created_at) }}</small>
+                <small>发起于：{{ formatTime(poll.created_at) }}</small>
               </div>
               <div>
                 <ul style="list-style: none;margin:0px;padding:0px;" class="mb-2">
-                  <li>標識：{{ poll.sentence_uuid }} </li>
+                  <li>UUID：{{ poll.sentence_uuid }} </li>
                   <li>句子：{{ poll.pending.hitokoto }}</li>
-                  <li>來源：{{ poll.pending.from }}</li>
-                  <li>作者：{{ poll.pending.from_who || '未填寫' }}</li>
-                  <li>分類：{{ formatType(poll.pending.type) }}</li>
+                  <li>来源：{{ poll.pending.from }}</li>
+                  <li>作者：{{ poll.pending.from_who || '未填写作者' }}</li>
+                  <li>分类：{{ formatType(poll.pending.type) }}</li>
                   <li>提交者：{{ poll.pending.creator }}</li>
-                  <li><b>當前投票：批准 {{ poll.accept }} 票，駁回 {{ poll.reject }} 票，需要更改 {{ poll.need_edited }} 票</b></li>
+                  <li><b>当前投票：批准 {{ poll.accept }} 票，驳回 {{ poll.reject }} 票，需要更改 {{ poll.need_edited }} 票</b></li>
                 </ul>
               </div>
               <b-button-group>
                 <b-button @click="requestPoll(poll.sentence_uuid, 1, index)" :disabled="requestPollLock" size="sm" variant="success">
                   <b-spinner v-show="requestPollLock" small />
-                  <b-icon v-show="!requestPollLock" icon="check-circle" /> {{ requestPollLock ? '請求中...' : '批准' }}
+                  <b-icon v-show="!requestPollLock" icon="check-circle" /> {{ requestPollLock ? '请求中...' : '批准' }}
                 </b-button>
                 <b-button @click="requestPoll(poll.sentence_uuid, 2, index)" :disabled="requestPollLock" size="sm" variant="outline-danger">
                   <b-spinner v-show="requestPollLock" small variant="danger" />
-                  <b-icon v-show="!requestPollLock" icon="x" /> {{ requestPollLock ? '請求中...' : '駁回' }}
+                  <b-icon v-show="!requestPollLock" icon="x" /> {{ requestPollLock ? '请求中...' : '驳回' }}
                 </b-button>
                 <b-button @click="requestPoll(poll.sentence_uuid, 3, index)" :disabled="requestPollLock" size="sm" variant="outline-secondary">
                   <b-spinner v-show="requestPollLock" small variant="secondary" />
-                  <b-icon v-show="!requestPollLock" icon="flag-fill" /> {{ requestPollLock ? '請求中...' : '需要更改' }}
+                  <b-icon v-show="!requestPollLock" icon="flag-fill" /> {{ requestPollLock ? '请求中...' : '需要更改' }}
                 </b-button>
               </b-button-group>
             </b-list-group-item>
@@ -58,49 +58,49 @@
           <b-card-body>
             <b-button :disabled="!!requestNewPollLock" @click="requestNewPoll" variant="primary" pill>
               <b-spinner v-show="requestNewPollLock" type="grow" small />
-              {{ !requestNewPollLock ? '發起新投票' : '正在請求中...' }}
+              {{ !requestNewPollLock ? '发起新投票' : '请求中...' }}
             </b-button>
           </b-card-body>
         </b-card>
 
         <b-card
-          header="您的個人資訊"
+          header="个人资料"
           class="mb-3"
           no-body
         >
           <b-list-group flush>
             <b-list-group-item>
-              標識：{{ user.id }}
+              标题：{{ user.id }}
             </b-list-group-item>
             <b-list-group-item>
-              名稱：{{ user.name }}
+              名称：{{ user.name }}
             </b-list-group-item>
             <b-list-group-item>
-              郵箱：{{ user.email }}
+              邮箱：{{ user.email }}
             </b-list-group-item>
             <b-list-group-item>
-              角色：{{ user.role }}
+              权限：{{ user.role }}
             </b-list-group-item>
             <b-list-group-item>
-              投票概覽：
+              投票统计：
               <ul>
-                <li>總計 {{ user.poll.points }} 票</li>
+                <li>共计 {{ user.poll.points }} 票</li>
                 <li>批准 {{ user.poll.accept }} 票</li>
-                <li>駁回 {{ user.poll.reject }} 票</li>
+                <li>驳回 {{ user.poll.reject }} 票</li>
                 <li>需要修改 {{ user.poll.need_edited }} 票</li>
               </ul>
             </b-list-group-item>
             <b-list-group-item>
-              建檔時間：{{ formatTime(user.created_at) }}
+              创建时间：{{ formatTime(user.created_at) }}
             </b-list-group-item>
             <b-list-group-item>
-              最後操作：{{ formatTime(user.updated_at) }}
+              最后操作：{{ formatTime(user.updated_at) }}
             </b-list-group-item>
           </b-list-group>
         </b-card>
 
         <b-card
-          header="您的投票紀錄"
+          header="投票记录"
           class="mb-3"
           no-body
         >
@@ -114,16 +114,16 @@
               </div>
               <div>
                 <ul style="list-style: none;margin:0px;padding:0px;" class="mb-2">
-                  <li>標識：{{ log.sentence_uuid }} </li>
+                  <li>UUID：{{ log.sentence_uuid }} </li>
                   <template v-if="getPollSentence(log)">
                     <li>句子：{{ getPollSentence(log).hitokoto }}</li>
-                    <li>來源：{{ getPollSentence(log).from }}</li>
-                    <li>作者：{{ getPollSentence(log).from_who || '未填寫' }}</li>
-                    <li>分類：{{ formatType(getPollSentence(log).type) }}</li>
+                    <li>来源：{{ getPollSentence(log).from }}</li>
+                    <li>作者：{{ getPollSentence(log).from_who || '未填写作者' }}</li>
+                    <li>分类：{{ formatType(getPollSentence(log).type) }}</li>
                     <li>提交者：{{ getPollSentence(log).creator }}</li>
                   </template>
                   <template v-else>
-                    <li><i>句子消失不見啦！</i></li>
+                    <li><i>句子消失不见啦！</i></li>
                   </template>
                   <li><b>您投了<i>{{ formatPollType(log.type) }}</i> {{ log.point }} 票</b></li>
                 </ul>
@@ -141,7 +141,7 @@ import moment from 'moment'
 export default {
   head () {
     return {
-      title: '面板 | 一言投票服務'
+      title: '控制台 | 一言投票系统'
     }
   },
   data () {
@@ -171,28 +171,28 @@ export default {
     formatPollType (input) {
       const output = []
       output[1] = '批准'
-      output[2] = '駁回'
+      output[2] = '驳回'
       output[3] = '需要修改'
-      output[4] = '需要用戶補充投票'
+      output[4] = '需要用户补充投票'
       return output[input] || '未知操作'
     },
     formatType (input) {
       const output = {
-        a: '動畫',
-        b: '漫畫',
-        c: '游戲',
-        d: '文學',
-        e: '原創',
-        f: '來自網絡',
+        a: '动画',
+        b: '漫画',
+        c: '游戏',
+        d: '文学',
+        e: '原创',
+        f: '来自网络',
         g: '其他',
-        h: '影視',
-        i: '詩詞',
-        j: '網易雲音樂',
-        k: '哲學',
-        l: '抖機靈（笑話，腦經急轉彎，段子等）'
+        h: '影视',
+        i: '诗词',
+        j: '网易云音乐',
+        k: '哲学',
+        l: '抖机灵（笑话，脑筋急转弯，段子等）'
       }
 
-      return output[input] || '位置分類'
+      return output[input] || '位置分类'
     },
     getPollSentence (data) {
       if (data.pending) {
@@ -213,8 +213,8 @@ export default {
         this.$notify({
           type: 'warn',
           group: 'request-result',
-          title: '無法進行投票操作',
-          text: '此令牌雖然已經證明了您的身份，但是您當前無權限對句子：' + sentenceUUID + ' 進行投票。'
+          title: '无法进行投票操作',
+          text: '此令牌权限不足以对句子：' + sentenceUUID + ' 进行投票。'
         })
         this.requestPollLock = false
         return
@@ -222,8 +222,8 @@ export default {
         this.$notify({
           type: 'error',
           group: 'request-result',
-          title: '無法進行投票操作',
-          text: '您已對句子：' + sentenceUUID + ' 投過票了，請勿重複投票。'
+          title: '无法进行投票操作',
+          text: '您已经对句子：' + sentenceUUID + ' 投过票了，请勿重复投票。'
         })
         this.requestPollLock = false
         return
@@ -231,8 +231,8 @@ export default {
         this.$notify({
           type: 'error',
           group: 'request-result',
-          title: '無法進行投票操作',
-          text: '句子：' + sentenceUUID + ' 尚未開放投票。'
+          title: '无法进行投票操作',
+          text: '句子：' + sentenceUUID + ' 还未开放投票。'
         })
         this.requestPollLock = false
         return
@@ -240,8 +240,8 @@ export default {
         this.$notify({
           type: 'error',
           group: 'request-result',
-          title: '無法進行投票操作',
-          text: '對句子：' + sentenceUUID + ' 發起投票操作時出現未知錯誤，詳情咨詢管理員。'
+          title: '无法进行投票操作',
+          text: '对句子：' + sentenceUUID + ' 发起投票时出现错误，请重试。'
         })
         this.requestPollLock = false
         return
@@ -262,8 +262,8 @@ export default {
       this.$notify({
         type: 'success',
         group: 'request-result',
-        title: '成功進行投票操作',
-        text: '成功對句子：' + sentenceUUID + ' 投票，頁面數據已更新。'
+        title: '成功进行投票操作',
+        text: '成功对句子：' + sentenceUUID + ' 投票，页面数据已经更新。'
       })
       this.requestPollLock = false
     },
@@ -277,8 +277,8 @@ export default {
         this.$notify({
           type: 'warn',
           group: 'request-result',
-          title: '無法發起新投票',
-          text: '此令牌雖然已經證明了您的身份，但是您當前無權限。'
+          title: '无法发起新投票',
+          text: '此令牌虽然已经证明了您的身份，但是您当前无权发起投票。'
         })
         this.requestNewPollLock = false
         return
@@ -286,8 +286,8 @@ export default {
         this.$notify({
           type: 'error',
           group: 'request-result',
-          title: '無法發起新投票',
-          text: '當前正在進行中的投票已達上限，暫時無法發起投票。'
+          title: '无法发起新投票',
+          text: '当前进行中的投票已经到达上限，暂时无法开启新投票。'
         })
         this.requestNewPollLock = false
         return
@@ -295,8 +295,8 @@ export default {
       this.$notify({
         type: 'success',
         group: 'request-result',
-        title: '您已成功發起新投票',
-        text: '已將新投票添加到投票隊列，您可以開始投票了。'
+        title: '您已成功发起新投票',
+        text: '已将新投票添加到投票队列，您现在可以开始投票了。'
       })
       this.pollList.push(data.Data[0])
       this.requestNewPollLock = false
