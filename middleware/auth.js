@@ -4,7 +4,7 @@ export default async function ({ req, app, store, redirect, route }) {
   if (process.server) {
     token = app.$cookies.get('token')
   } else {
-    token = store.state.token.token
+    token = store.state.token.token || app.$cookies.get('token') || ''
   }
   if (!token || token.length !== 40) {
     // console.log('無 token')
@@ -18,4 +18,7 @@ export default async function ({ req, app, store, redirect, route }) {
     return redirect('/')
   }
   store.commit('token/set', token)
+  app.$cookies.set('token', token, {
+    maxAge: 60 * 60 * 24 * 30
+  })
 }

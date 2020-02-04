@@ -64,13 +64,13 @@
         </b-card>
 
         <b-card
-          header="个人资料"
+          header="您的个人资料"
           class="mb-3"
           no-body
         >
           <b-list-group flush>
             <b-list-group-item>
-              标题：{{ user.id }}
+              标识：{{ user.id }}
             </b-list-group-item>
             <b-list-group-item>
               名称：{{ user.name }}
@@ -134,6 +134,7 @@
       </b-col>
     </b-row>
     <notifications group="request-result" position="bottom right" />
+    <notifications group="top-notification" position="top center" />
   </div>
 </template>
 <script>
@@ -147,7 +148,9 @@ export default {
   data () {
     return {
       requestNewPollLock: false,
-      requestPollLock: false
+      requestPollLock: false,
+      // eslint-disable-next-line vue/no-reserved-keys
+      _timer () {}
     }
   },
   computed: {
@@ -163,6 +166,12 @@ export default {
       pollList: pollResponse.data.Data,
       user: userResponse.data.Data[0]
     }
+  },
+  mounted () {
+    this.timer()
+  },
+  destroyed () {
+    clearInterval(this._timer)
   },
   methods: {
     formatTime (input) {
@@ -257,8 +266,17 @@ export default {
       }
 
       // 更新用戶數據
-      const userResponse = await this.$axios.get(`https://poll.hitokoto.cn/v1/user/${token}`)
-      this.user = userResponse.data.Data[0]
+      const _this = this
+      this.$axios.get(`https://poll.hitokoto.cn/v1/user/${token}`)
+        .then(({ data }) => {
+          _this.user = data.Data[0]
+          _this.$notify({
+            type: 'success',
+            group: 'request-result',
+            title: '已完成用户数据更新',
+            text: '由于您发起了投票操作，我们现已更新您的用户数据。'
+          })
+        })
       this.$notify({
         type: 'success',
         group: 'request-result',
@@ -300,6 +318,31 @@ export default {
       })
       this.pollList.push(data.Data[0])
       this.requestNewPollLock = false
+    },
+    timer () {
+      this.$notify({
+        // type: 'success',
+        group: 'request-result',
+        title: '已激活自动刷新任务',
+        text: '为了保障数据的及时，有效，每 30 秒我们会更新投票队列。'
+      })
+      this._timer = setInterval(() => {
+        const _this = this
+        const token = this.$store.state.token.token
+        this.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}`)
+          .then(({ data }) => {
+            if (data.Code !== 200) {
+              throw new Error(`${data.Code}：${data.Message}`)
+            }
+            _this.pollList = data.Data
+            _this.$notify({
+              type: 'success',
+              group: 'request-result',
+              title: '投票队列已更新',
+              text: '已将投票队列数据更新，当前进行中的投票有 ' + data.Data.length + ' 个。'
+            })
+          })
+      }, 1000 * 30)
     }
   }
 }

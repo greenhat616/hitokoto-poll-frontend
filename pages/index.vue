@@ -19,7 +19,7 @@
                 v-model="form.token"
                 :state="validation"
                 type="text"
-                placeholder="Token"
+                placeholder="请输入您的令牌……"
               />
               <b-form-invalid-feedback>
                 {{ feedback }}
@@ -61,7 +61,7 @@ export default {
   },
   computed: {
     getToken () {
-      return this.$store.state.token.token
+      return this.$store.state.token.token || this.$cookies.get('token')
     }
   },
   mounted () {
