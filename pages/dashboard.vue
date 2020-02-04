@@ -28,30 +28,37 @@
                 <small>发起于：{{ formatTime(poll.created_at) }}</small>
               </div>
               <div>
-                <ul style="list-style: none;margin:0px;padding:0px;" class="mb-2">
+                <ul class="mb-2" style="list-style: none;margin:0px;padding:0px;">
                   <li>标识：{{ poll.sentence_uuid }} </li>
-                  <li>句子：{{ poll.pending.hitokoto }}</li>
-                  <li>来源：{{ poll.pending.from }}</li>
-                  <li>作者：{{ poll.pending.from_who || '未填写' }}</li>
+                  <li class="text-wrapper">句子：{{ poll.pending.hitokoto }}</li>
+                  <li class="text-wrapper">来源：{{ poll.pending.from }}</li>
+                  <li class="text-wrapper">作者：{{ poll.pending.from_who || '未填写' }}</li>
                   <li>分类：{{ formatType(poll.pending.type) }}</li>
-                  <li>提交者：{{ poll.pending.creator }}</li>
+                  <li class="text-wrapper">提交者：{{ poll.pending.creator }}</li>
+                  <li v-if="poll.isPolled[0]">
+                    投票记录：您投了 <b style="color: #1a9e0f">{{ formatPollType(poll.isPolled[2]) }}</b> <i>{{ poll.isPolled[1] }}</i> 票
+                  </li>
                   <li><b>当前投票：批准 {{ poll.accept }} 票，驳回 {{ poll.reject }} 票，需要更改 {{ poll.need_edited }} 票</b></li>
                 </ul>
               </div>
-              <b-button-group>
-                <b-button @click="requestPoll(poll.sentence_uuid, 1, index)" :disabled="requestPollLock" size="sm" variant="success">
-                  <b-spinner v-show="requestPollLock" small />
-                  <b-icon v-show="!requestPollLock" icon="check-circle" /> {{ requestPollLock ? '请求中...' : '批准' }}
+              <b-button-group v-if="!poll.isPolled[0]">
+                <b-button @click="requestPoll(poll.sentence_uuid, 1, index)" :disabled="!!requestPollLock[index]" size="sm" variant="success">
+                  <b-spinner v-show="!!requestPollLock[index]" small />
+                  <b-icon v-show="!requestPollLock[index]" icon="check-circle" /> {{ !!requestPollLock[index] ? '请求中...' : '批准' }}
                 </b-button>
-                <b-button @click="requestPoll(poll.sentence_uuid, 2, index)" :disabled="requestPollLock" size="sm" variant="outline-danger">
-                  <b-spinner v-show="requestPollLock" small variant="danger" />
-                  <b-icon v-show="!requestPollLock" icon="x" /> {{ requestPollLock ? '请求中...' : '驳回' }}
+                <b-button @click="requestPoll(poll.sentence_uuid, 2, index)" :disabled="!!requestPollLock[index]" size="sm" variant="outline-danger">
+                  <b-spinner v-show="!!requestPollLock[index]" small variant="danger" />
+                  <b-icon v-show="!requestPollLock[index]" icon="x" /> {{ requestPollLock[index] ? '请求中...' : '驳回' }}
                 </b-button>
-                <b-button @click="requestPoll(poll.sentence_uuid, 3, index)" :disabled="requestPollLock" size="sm" variant="outline-secondary">
-                  <b-spinner v-show="requestPollLock" small variant="secondary" />
-                  <b-icon v-show="!requestPollLock" icon="flag-fill" /> {{ requestPollLock ? '请求中...' : '需要更改' }}
+                <b-button @click="requestPoll(poll.sentence_uuid, 3, index)" :disabled="!!requestPollLock[index]" size="sm" variant="outline-secondary">
+                  <b-spinner v-show="!!requestPollLock[index]" small variant="secondary" />
+                  <b-icon v-show="!requestPollLock[index]" icon="flag-fill" /> {{ !!requestPollLock[index] ? '请求中...' : '需要更改' }}
                 </b-button>
               </b-button-group>
+              <b-button v-else @click="requestCancel(poll.sentence_uuid, index)" :disabled="!!requestPollLock[index]" size="sm" variant="primary">
+                <b-spinner v-show="!!requestPollLock[index]" small />
+                <b-icon v-show="!requestPollLock[index]" icon="arrow-counterclockwise" /> {{ !!requestPollLock[index] ? '请求中...' : '撤回意见' }}
+              </b-button>
             </b-list-group-item>
           </b-list-group>
 
@@ -98,39 +105,6 @@
             </b-list-group-item>
           </b-list-group>
         </b-card>
-
-        <b-card
-          header="投票记录"
-          class="mb-3"
-          no-body
-        >
-          <b-list-group flush>
-            <b-list-group-item v-for="(log, index) in user.poll.pollLog" :key="index" class="flex-column align-items-start">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">
-                  #{{ log.id }}
-                </h5>
-                <small>操作于：{{ formatTime(log.created_at) }}</small>
-              </div>
-              <div>
-                <ul style="list-style: none;margin:0px;padding:0px;" class="mb-2">
-                  <li>标识：{{ log.sentence_uuid }} </li>
-                  <template v-if="getPollSentence(log)">
-                    <li>句子：{{ getPollSentence(log).hitokoto }}</li>
-                    <li>来源：{{ getPollSentence(log).from }}</li>
-                    <li>作者：{{ getPollSentence(log).from_who || '未填写作者' }}</li>
-                    <li>分类：{{ formatType(getPollSentence(log).type) }}</li>
-                    <li>提交者：{{ getPollSentence(log).creator }}</li>
-                  </template>
-                  <template v-else>
-                    <li><i>句子消失不见啦！</i></li>
-                  </template>
-                  <li><b>您投了<i>{{ formatPollType(log.type) }}</i> {{ log.point }} 票</b></li>
-                </ul>
-              </div>
-            </b-list-group-item>
-          </b-list-group>
-        </b-card>
       </b-col>
     </b-row>
     <notifications group="request-result" position="bottom right" />
@@ -148,7 +122,7 @@ export default {
   data () {
     return {
       requestNewPollLock: false,
-      requestPollLock: false,
+      requestPollLock: [],
       // eslint-disable-next-line vue/no-reserved-keys
       _timer () {}
     }
@@ -158,9 +132,12 @@ export default {
       return this.$store.state.token.token
     }
   },
+  watch: {
+
+  },
   async asyncData ({ app, store }) {
     const token = store.state.token.token
-    const pollResponse = await app.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}`)
+    const pollResponse = await app.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}?need_polled_flag=true`)
     const userResponse = await app.$axios.get(`https://poll.hitokoto.cn/v1/user/${token}`)
     return {
       pollList: pollResponse.data.Data,
@@ -214,8 +191,8 @@ export default {
       return false
     },
     async requestPoll (sentenceUUID, method, index) {
-      if (this.requestPollLock) { return }
-      this.requestPollLock = true
+      if (this.requestPollLock[index]) { return }
+      this.$set(this.requestPollLock, index, true)
       const token = this.$store.state.token.token
       const { data } = await this.$axios.get(`https://poll.hitokoto.cn/v1/poll/${token}?sentence_uuid=${sentenceUUID}&method=${method}`)
       if (data.Code === 403) {
@@ -225,7 +202,7 @@ export default {
           title: '无法进行投票操作',
           text: '此令牌权限不足以对句子：' + sentenceUUID + ' 进行投票。'
         })
-        this.requestPollLock = false
+        this.$set(this.requestPollLock, index, false)
         return
       } else if (data.Code === -2) {
         this.$notify({
@@ -234,7 +211,7 @@ export default {
           title: '无法进行投票操作',
           text: '您已经对句子：' + sentenceUUID + ' 投过票了，请勿重复投票。'
         })
-        this.requestPollLock = false
+        this.$set(this.requestPollLock, index, false)
         return
       } else if (data.Code === -4) {
         this.$notify({
@@ -243,7 +220,7 @@ export default {
           title: '无法进行投票操作',
           text: '句子：' + sentenceUUID + ' 还未开放投票。'
         })
-        this.requestPollLock = false
+        this.$set(this.requestPollLock, index, false)
         return
       } else if (data.Code !== 200) {
         this.$notify({
@@ -252,7 +229,7 @@ export default {
           title: '无法进行投票操作',
           text: '对句子：' + sentenceUUID + ' 发起投票时出现未知错误，建议联系管理员。'
         })
-        this.requestPollLock = false
+        this.$set(this.requestPollLock, index, false)
         return
       }
       // 成功了
@@ -264,26 +241,100 @@ export default {
       } else if (method === 3) {
         this.pollList[index].need_edited = this.pollList[index].need_edited + point
       }
+      // 更新投票状态
+      this.pollList[index].isPolled = [true, point, method]
 
       // 更新用戶數據
-      const _this = this
-      this.$axios.get(`https://poll.hitokoto.cn/v1/user/${token}`)
-        .then(({ data }) => {
-          _this.user = data.Data[0]
-          _this.$notify({
-            type: 'success',
-            group: 'request-result',
-            title: '已完成用户数据更新',
-            text: '由于您发起了投票操作，我们现已更新您的用户数据。'
-          })
-        })
+      this.user.poll.points += point
+      if (method === 1) {
+        this.user.poll.accept += point
+      } else if (method === 2) {
+        this.user.poll.reject += point
+      } else if (method === 3) {
+        this.user.poll.need_edited += point
+      }
       this.$notify({
         type: 'success',
         group: 'request-result',
         title: '成功进行投票操作',
-        text: '成功对句子：' + sentenceUUID + ' 投票，页面数据已经更新。'
+        text: '成功对句子：' + sentenceUUID + ' 投票，投票数据已经更新。'
       })
-      this.requestPollLock = false
+      this.$set(this.requestPollLock, index, false)
+    },
+    async requestCancel (sentenceUUID, index) {
+      if (this.requestPollLock[index]) { return }
+      this.$set(this.requestPollLock, index, true)
+      const token = this.$store.state.token.token
+      const { data } = await this.$axios.get(`https://poll.hitokoto.cn/v1/poll/cancel/${token}?sentence_uuid=${sentenceUUID}`)
+      if (data.Code === -3) {
+        this.$notify({
+          type: 'danger',
+          group: 'request-result',
+          title: '无法撤回投票',
+          text: '您尚未对此投票发表意见，无需撤回。'
+        })
+        this.$set(this.requestPollLock, index, false)
+        return
+      } else if (data.Code === -4) {
+        this.$notify({
+          type: 'danger',
+          group: 'request-result',
+          title: '无法撤回投票',
+          text: '此投票已结束投票阶段，无法撤回投票。'
+        })
+        this.$set(this.requestPollLock, index, false)
+        return
+      } else if (data.Code === -6) {
+        this.$notify({
+          type: 'danger',
+          group: 'request-result',
+          title: '无法撤回投票',
+          text: '投票不存在。可能是系统问题，建议联系管理员。'
+        })
+        this.$set(this.requestPollLock, index, false)
+        return
+      } else if (data.Code !== 200) {
+        window.console.log(data)
+        this.$notify({
+          type: 'danger',
+          group: 'request-result',
+          title: '无法撤回投票',
+          text: '未知状态码。可能是系统问题，建议联系管理员。'
+        })
+        this.$set(this.requestPollLock, index, false)
+        return
+      }
+      // 更新数据
+      const point = data.Data[0].cancelData.point
+      const method = data.Data[0].cancelData.type
+      // window.console.log(point, method)
+      if (method === 1) { // 更新投票數據
+        this.pollList[index].accept = this.pollList[index].accept - point
+      } else if (method === 2) {
+        this.pollList[index].reject = this.pollList[index].reject - point
+      } else if (method === 3) {
+        this.pollList[index].need_edited = this.pollList[index].need_edited - point
+      }
+      // 更新投票状态
+      this.pollList[index].isPolled = [false]
+
+      // 更新用戶數據
+      this.user.poll.points = this.user.poll.points - point
+      if (method === 1) {
+        this.user.poll.accept = this.user.poll.accept - point
+      } else if (method === 2) {
+        this.user.poll.reject = this.user.poll.reject - point
+      } else if (method === 3) {
+        this.user.poll.need_edited = this.user.poll.need_edited - point
+      }
+
+      this.$notify({
+        type: 'success',
+        group: 'request-result',
+        title: '成功撤回投票',
+        text: '成功对句子：' + sentenceUUID + ' 撤回投票，投票数据已经更新。'
+      })
+      this.$set(this.requestPollLock, index, false)
     },
     async requestNewPoll () {
       if (this.requestNewPollLock) { return }
@@ -314,7 +365,7 @@ export default {
         type: 'success',
         group: 'request-result',
         title: '您已成功发起新投票',
-        text: '已将新投票添加到投票队列，您现在可以开始投票了。'
+        text: '待投票队列还剩 ' + data.Data[0].remain_pending + '个。\n已将新投票添加到投票队列，您现在可以开始投票了。'
       })
       this.pollList.push(data.Data[0])
       this.requestNewPollLock = false
@@ -329,7 +380,7 @@ export default {
       this._timer = setInterval(() => {
         const _this = this
         const token = this.$store.state.token.token
-        this.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}`)
+        this.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}?need_polled_flag=true`)
           .then(({ data }) => {
             if (data.Code !== 200) {
               throw new Error(`${data.Code}：${data.Message}`)
@@ -347,3 +398,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.text-wrapper {
+  white-space: pre-wrap;
+}
+</style>
