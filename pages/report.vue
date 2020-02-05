@@ -20,7 +20,7 @@
                 <template v-if="getPollSentence(item)">
                   <li>句子：{{ getPollSentence(item).hitokoto }}</li>
                   <li>来源：{{ getPollSentence(item).from }}</li>
-                  <li>作者：{{ getPollSentence(item).from_who || '未填写作者' }}</li>
+                  <li>作者：{{ getPollSentence(item).from_who || '未填写' }}</li>
                   <li>分类：{{ formatType(getPollSentence(item).type) }}</li>
                   <li>提交者：{{ getPollSentence(item).creator }}</li>
                 </template>

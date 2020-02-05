@@ -375,6 +375,7 @@ export default {
         title: '您已成功发起新投票',
         text: '待投票队列还剩 ' + data.Data[0].remain_pending + '个。\n已将新投票添加到投票队列，您现在可以开始投票了。'
       })
+      data.Data[0].isPolled = [false] // 手动添加 flag
       this.pollList.push(data.Data[0])
       this.requestNewPollLock = false
     },
