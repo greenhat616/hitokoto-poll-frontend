@@ -117,6 +117,7 @@
 </template>
 <script>
 import moment from 'moment'
+import _ from 'lodash'
 export default {
   head () {
     return {
@@ -376,7 +377,7 @@ export default {
         text: '待投票队列还剩 ' + data.Data[0].remain_pending + '个。\n已将新投票添加到投票队列，您现在可以开始投票了。'
       })
       data.Data[0].isPolled = [false] // 手动添加 flag
-      this.pollList.push(data.Data[0])
+      _.last(this.pollList).sentence_uuid !== data.Data[0].sentence_uuid || this.pollList.push(data.Data[0])
       this.requestNewPollLock = false
     },
     timer () {

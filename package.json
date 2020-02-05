@@ -21,6 +21,7 @@
     "cookie-universal-nuxt": "^2.1.1",
     "cross-env": "^5.2.0",
     "koa": "^2.6.2",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "nuxt": "^2.0.0",
     "nuxt-vuex-localstorage": "^1.2.6",
