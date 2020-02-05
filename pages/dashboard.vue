@@ -350,7 +350,6 @@ export default {
       this.requestNewPollLock = true
       const token = this.$store.state.token.token
       const { data } = await this.$axios.get(`https://poll.hitokoto.cn/v1/poll/new/${token}`)
-      window.console.log(data)
       if (data.Code === 403) {
         this.$notify({
           type: 'warn',
@@ -377,7 +376,9 @@ export default {
         text: '待投票队列还剩 ' + data.Data[0].remain_pending + '个。\n已将新投票添加到投票队列，您现在可以开始投票了。'
       })
       data.Data[0].isPolled = [false] // 手动添加 flag
-      _.last(this.pollList).sentence_uuid !== data.Data[0].sentence_uuid || this.pollList.push(data.Data[0])
+      if (_.last(this.pollList).sentence_uuid !== data.Data[0].sentence_uuid) {
+        this.pollList.push(data.Data[0]) // 尝试修复同步问题
+      }
       this.requestNewPollLock = false
     },
     timer () {
@@ -385,7 +386,7 @@ export default {
         // type: 'success',
         group: 'request-result',
         title: '已激活自动刷新任务',
-        text: '为了保障数据的及时、有效，每 30 秒我们会更新投票队列。'
+        text: '为了保障数据的及时、有效，每 30 秒我们会更新投票队列。当前有 ' + this.pollList.length + ' 个句子正在投票。'
       })
       this._timer = setInterval(() => {
         const _this = this
