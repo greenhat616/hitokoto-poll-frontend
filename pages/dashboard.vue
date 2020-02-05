@@ -38,7 +38,7 @@
                   <li v-if="poll.isPolled[0]">
                     投票记录：您投了 <b style="color: #1a9e0f">{{ formatPollType(poll.isPolled[2]) }}</b> <i>{{ poll.isPolled[1] }}</i> 票
                   </li>
-                  <li><b>当前投票：批准 {{ poll.accept }} 票，驳回 {{ poll.reject }} 票，需要更改 {{ poll.need_edited }} 票</b></li>
+                  <li v-if="user.role === '管理员'"><b>当前投票：批准 {{ poll.accept }} 票，驳回 {{ poll.reject }} 票，需要更改 {{ poll.need_edited }} 票</b></li>
                 </ul>
               </div>
               <b-button-group v-if="!poll.isPolled[0]">
@@ -66,6 +66,10 @@
             <b-button :disabled="!!requestNewPollLock" @click="requestNewPoll" variant="primary" pill>
               <b-spinner v-show="requestNewPollLock" type="grow" small />
               {{ !requestNewPollLock ? '发起新投票' : '请求中...' }}
+            </b-button>
+
+            <b-button @click="viewResultAndLog" variant="outline-secondary" pill>
+              查看结果与记录
             </b-button>
           </b-card-body>
         </b-card>
@@ -137,11 +141,14 @@ export default {
   },
   async asyncData ({ app, store }) {
     const token = store.state.token.token
-    const pollResponse = await app.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}?need_polled_flag=true`)
-    const userResponse = await app.$axios.get(`https://poll.hitokoto.cn/v1/user/${token}`)
+    const queue = []
+    const poll = app.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}?need_polled_flag=true`)
+    const user = app.$axios.get(`https://poll.hitokoto.cn/v1/user/${token}`)
+    queue.push(poll, user)
+    const data = await Promise.all(queue)
     return {
-      pollList: pollResponse.data.Data,
-      user: userResponse.data.Data[0]
+      pollList: data[0].data.Data,
+      user: data[1].data.Data[0]
     }
   },
   mounted () {
@@ -158,7 +165,7 @@ export default {
       const output = []
       output[1] = '批准'
       output[2] = '驳回'
-      output[3] = '需要修改'
+      output[3] = '需要更改'
       output[4] = '需要用户补充投票'
       return output[input] || '未知操作'
     },
@@ -233,7 +240,7 @@ export default {
         return
       }
       // 成功了
-      const point = this.user.role === '管理员' ? 2 : 1
+      const point = data.Data[0].pollData.point
       if (method === 1) { // 更新投票數據
         this.pollList[index].accept = this.pollList[index].accept + point
       } else if (method === 2) {
@@ -253,6 +260,7 @@ export default {
       } else if (method === 3) {
         this.user.poll.need_edited += point
       }
+      this.user.updated_at = data.Data[0].updated_at
       this.$notify({
         type: 'success',
         group: 'request-result',
@@ -327,7 +335,7 @@ export default {
       } else if (method === 3) {
         this.user.poll.need_edited = this.user.poll.need_edited - point
       }
-
+      this.user.updated_at = data.Data[0].updated_at
       this.$notify({
         type: 'success',
         group: 'request-result',
@@ -375,7 +383,7 @@ export default {
         // type: 'success',
         group: 'request-result',
         title: '已激活自动刷新任务',
-        text: '为了保障数据的及时，有效，每 30 秒我们会更新投票队列。'
+        text: '为了保障数据的及时、有效，每 30 秒我们会更新投票队列。'
       })
       this._timer = setInterval(() => {
         const _this = this
@@ -394,6 +402,9 @@ export default {
             })
           })
       }, 1000 * 30)
+    },
+    viewResultAndLog () {
+      this.$router.push('report')
     }
   }
 }
