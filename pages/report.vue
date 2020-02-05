@@ -28,8 +28,9 @@
                   <li><i>句子消失不见啦！</i></li>
                 </template>
                 <li>
-                  <em>投票状态：<b style="color: #ef8719;">{{ formatStatus(item.poll.status) }}</b></em>
+                  投票状态：<em><b style="color: #ef8719;">{{ formatStatus(item.poll.status) }}</b></em>
                 </li>
+                <li><b>投票结果：批准 {{ item.poll.accept }} 票，驳回 {{ item.poll.reject }} 票，需要更改 {{ item.poll.need_edited }} 票</b></li>
                 <li>
                   投票记录：您投了 <b style="color: #1a9e0f">{{ formatPollType(item.type) }}</b> <i>{{ item.point }}</i> 票
                 </li>
