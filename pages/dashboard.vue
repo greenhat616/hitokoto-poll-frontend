@@ -313,6 +313,7 @@ export default {
         this.$set(this.requestPollLock, index, false)
         return
       }
+      window.console.log(data)
       // 更新数据
       const point = data.Data[0].cancelData.point
       const method = data.Data[0].cancelData.type
@@ -368,6 +369,15 @@ export default {
         })
         this.requestNewPollLock = false
         return
+      } else if (data.Code === -2) {
+        this.$notify({
+          type: 'error',
+          group: 'request-result',
+          title: '无法发起新投票',
+          text: '当前没有句子等待投票。十分感谢各位审核员的努力，一言有你才精彩！'
+        })
+        this.requestNewPollLock = false
+        return
       }
       this.$notify({
         type: 'success',
@@ -388,23 +398,38 @@ export default {
         title: '已激活自动刷新任务',
         text: '为了保障数据的及时、有效，每 30 秒我们会更新投票队列。当前有 ' + this.pollList.length + ' 个句子正在投票。'
       })
-      this._timer = setInterval(() => {
-        const _this = this
-        const token = this.$store.state.token.token
-        this.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}?need_polled_flag=true`)
-          .then(({ data }) => {
-            if (data.Code !== 200) {
-              throw new Error(`${data.Code}：${data.Message}`)
+      this._timer = setInterval(this.updatePollList, 1000 * 30)
+    },
+    updatePollList () {
+      const _this = this
+      const token = this.$store.state.token.token
+      this.$axios.get(`https://poll.hitokoto.cn/v1/poll/get/${token}?need_polled_flag=true`)
+        .then(({ data }) => {
+          if (data.Code !== 200) {
+            throw new Error(`${data.Code}：${data.Message}`)
+          }
+          // 验证数据
+          const result = data.Data
+          result.map((v) => {
+            const r = _.find(_this.pollList, { sentence_uuid: v.sentence_uuid }) // 得到老列表的参数
+            // 对比时间
+            if (r) {
+              const rTS = new Date(r.updated_at).getTime() // 本地记录更新记录的时间戳
+              const vTS = new Date(v.updated_at).getTime() // 本次同步更新记录的时间戳
+              if (rTS > vTS) {
+                return r
+              }
             }
-            _this.pollList = data.Data
-            _this.$notify({
-              type: 'success',
-              group: 'request-result',
-              title: '投票队列已更新',
-              text: '已将投票队列数据更新，当前进行中的投票有 ' + data.Data.length + ' 个。'
-            })
+            return v
           })
-      }, 1000 * 30)
+          _this.pollList = result
+          _this.$notify({
+            type: 'success',
+            group: 'request-result',
+            title: '投票队列已更新',
+            text: '已将投票队列数据更新，当前进行中的投票有 ' + data.Data.length + ' 个。'
+          })
+        })
     },
     viewResultAndLog () {
       this.$router.push('report')
