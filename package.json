@@ -48,13 +48,13 @@
     "popper.js": "^1.16.1",
     "sass-loader": "^8.0.2",
     "scss-loader": "^0.0.1",
-    "stylelint": "^13.2.0",
+    "stylelint": "12",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-declaration-block-no-ignored-properties": "^2.2.0",
     "stylelint-order": "^4.0.0",
     "vue": "^2.6.11",
-    "webpack": "^5.0.0-beta.13"
+    "webpack": "4"
   },
   "husky": {
     "hooks": {
