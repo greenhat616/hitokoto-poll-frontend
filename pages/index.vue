@@ -7,7 +7,7 @@
           class="mb-2"
         >
           <b-card-text>
-            请输入您在 <a href="https://hitokoto.cn/api/v1/user/getToken" target="_blank">hitokoto.cn</a> 获得的令牌（<code>token</code>）以验证身份。
+            请输入您在 <a href="https://hitokoto.cn/dashboard#/user/settings" target="_blank">hitokoto.cn</a> 获得的令牌（<code>token</code>）以验证身份。
           </b-card-text>
           <b-form @submit="onSubmit">
             <b-form-group
