@@ -15,7 +15,7 @@
               <small>操作于：{{ formatTime(item.created_at) }}</small>
             </div>
             <div>
-              <ul style="list-style: none;margin:0px;padding:0px;" class="mb-2">
+              <ul style="margin: 0; padding: 0; list-style: none;" class="mb-2">
                 <li>标识：{{ item.sentence_uuid }} </li>
                 <template v-if="getPollSentence(item)">
                   <li>句子：{{ getPollSentence(item).hitokoto }}</li>
@@ -32,7 +32,7 @@
                 </li>
                 <li><b>投票结果：批准 {{ item.poll.accept }} 票，驳回 {{ item.poll.reject }} 票，需要更改 {{ item.poll.need_edited }} 票</b></li>
                 <li>
-                  投票记录：您投了 <b style="color: #1a9e0f">{{ formatPollType(item.type) }}</b> <i>{{ item.point }}</i> 票
+                  投票记录：您投了 <b style="color: #1a9e0f;">{{ formatPollType(item.type) }}</b> <i>{{ item.point }}</i> 票
                 </li>
               </ul>
             </div>

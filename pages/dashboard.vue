@@ -28,7 +28,7 @@
                 <small>发起于：{{ formatTime(poll.created_at) }}</small>
               </div>
               <div>
-                <ul class="mb-2" style="list-style: none;margin:0px;padding:0px;">
+                <ul class="mb-2" style=" margin: 0; padding: 0; list-style: none;">
                   <li>标识：{{ poll.sentence_uuid }} </li>
                   <li class="text-wrapper">句子：{{ poll.pending.hitokoto }}</li>
                   <li class="text-wrapper">来源：{{ poll.pending.from }}</li>
@@ -36,7 +36,7 @@
                   <li>分类：{{ formatType(poll.pending.type) }}</li>
                   <li class="text-wrapper">提交者：{{ poll.pending.creator }}</li>
                   <li v-if="poll.isPolled[0]">
-                    投票记录：您投了 <b style="color: #1a9e0f">{{ formatPollType(poll.isPolled[2]) }}</b> <i>{{ poll.isPolled[1] }}</i> 票
+                    投票记录：您投了 <b style="color: #1a9e0f;">{{ formatPollType(poll.isPolled[2]) }}</b> <i>{{ poll.isPolled[1] }}</i> 票
                   </li>
                   <li v-if="user.role === '管理员'"><b>当前投票：批准 {{ poll.accept }} 票，驳回 {{ poll.reject }} 票，需要更改 {{ poll.need_edited }} 票</b></li>
                 </ul>
@@ -371,7 +371,7 @@ export default {
         return
       } else if (data.Code === -2) {
         this.$notify({
-          type: 'error',
+          type: 'info',
           group: 'request-result',
           title: '无法发起新投票',
           text: '当前没有句子等待投票。十分感谢各位审核员的努力，一言有你才精彩！'
