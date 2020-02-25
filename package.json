@@ -52,9 +52,7 @@
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-declaration-block-no-ignored-properties": "^2.2.0",
-    "stylelint-order": "^4.0.0",
-    "vue": "^2.6.11",
-    "webpack": "4"
+    "stylelint-order": "^4.0.0"
   },
   "husky": {
     "hooks": {
