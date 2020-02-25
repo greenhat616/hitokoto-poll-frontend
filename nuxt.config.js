@@ -39,6 +39,32 @@ module.exports = {
       id: 'UA-158766433-3'
     }]
   ],
+  manifest: {
+    name: "一言投票服务",
+    short_name: "一言投票",
+    description: "一言审核员投票模块。在这里，你可以为你喜欢的句子投出赞成票；对自己厌恶的句子投出否决票。公开透明，共同维护。你们是一言前进的动力与榜样，一言有你们更精彩！",
+    background_color: "#ebebeb",
+    theme_color: "#343a40",
+    lang: "zh",
+    start_url: "/"
+  },
+  render: {
+    http2: {
+      push: true
+    },
+    static: {
+      maxAge: "1y",
+      setHeaders(res, path) {
+        if (path.includes("sw.js")) {
+          res.setHeader("Cache-Control", `public, max-age=${15 * 60}`);
+        }
+      }
+    }
+  },
+// resourceHints 提升页面加载性能与体验
+  render: {
+    resourceHints: false
+  },
   /*
   ** Nuxt.js modules
   */
@@ -54,7 +80,8 @@ module.exports = {
       localStorage: ['localStorage', 'token'], //  If not entered, “localStorage” is the default value
       sessionStorage: ['sessionStorage'] //  If not entered, “sessionStorage” is the default value
     }],
-    'cookie-universal-nuxt'
+    'cookie-universal-nuxt',
+    '@nuxtjs/pwa'
   ],
   /*
   ** Axios module configuration
